@@ -1,0 +1,40 @@
+---
+  - name: create 3 hosts on hetzner cloud
+    hosts: localhost
+    gather_facts: False
+    connection: local
+    vars:
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+    tasks:
+    - name: create 3 hosts
+      hcloud_server:
+        api_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
+        name: server{{ item }}
+        server_type: cx11
+        image: ubuntu-18.04
+        state: absent
+        location: fsn1
+        ssh_keys:
+        - ansible
+      with_sequence: count=3
+
+    - name: Create a basic network
+      hcloud_network:
+        name: vnet-10-1-1-0
+        ip_range: 10.1.1.0/24
+        state: absent
+
+    - name: Create a basic subnetwork
+      hcloud_subnetwork:
+        network: vnet-10-1-1-0
+        ip_range: 10.1.1.0/28
+        network_zone: eu-central
+        type: server
+        state: absent
+    - name: attach servers to subnet
+      hcloud_server_network:
+        network: vnet-10-1-1-0
+        server: server{{ item }}
+        state: absent
+      with_sequence: count=3
