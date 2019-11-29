@@ -13,7 +13,7 @@
         name: server{{ item }}
         server_type: cx11
         image: ubuntu-18.04
-        state: absent
+        state: present
         location: fsn1
         ssh_keys:
         - ansible
@@ -23,7 +23,7 @@
       hcloud_network:
         name: vnet-10-1-1-0
         ip_range: 10.1.1.0/24
-        state: absent
+        state: present
 
     - name: Create a basic subnetwork
       hcloud_subnetwork:
@@ -31,10 +31,10 @@
         ip_range: 10.1.1.0/28
         network_zone: eu-central
         type: server
-        state: absent
+        state: present
     - name: attach servers to subnet
       hcloud_server_network:
         network: vnet-10-1-1-0
         server: server{{ item }}
-        state: absent
+        state: present
       with_sequence: count=3
